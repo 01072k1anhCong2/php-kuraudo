@@ -1,0 +1,48 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="js/jquery.js"></script>
+    <title></title>
+    <script>
+        function result() {
+            var words = document.getElementById("input_words").value;
+            //alert(words);
+            document.getElementById("output_words").innerHTML = words;
+        }
+
+        function getData() {
+            alert("api");
+
+            $.ajax({
+                dataType: 'json',
+                type: 'get',
+                url: 'api_get.php'
+            }).done(function(data) {
+                //alert("成功");
+                //alert("データは" + data.length + "件です");
+                var result = "";
+
+                for (var loop = 0; loop < data.length; loop++) {
+                    result += data[loop]['tweet'] + "<br>";
+                }
+                document.getElementById("output_data").innerHTML = result;
+            }).fail(function(data) {
+                alert("失敗");
+            }).always(function(data) {
+                alert("Always");
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <input type="text" id="input_words" />
+    <button onclick="result();">投稿</button>
+    <button onclick="getData();">データを取得</button>
+
+    <div id="output_words"></div>
+    <div id="output_data"></div>
+</body>
+
+</html>

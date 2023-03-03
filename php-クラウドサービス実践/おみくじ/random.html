@@ -1,0 +1,169 @@
+<html>
+    <head>
+        <script src="js/jquery.js"></script>
+        <meta charset="utf-8">
+        <title></title>
+        <script>
+            getData();
+            getTotal();
+
+            function random()
+            {
+                //0 ~ 6までの数字がランダムで出る
+                var suji = Math.floor(Math.random() * 7);   //ランダムな数字を出力
+                var omikuji = '';
+                var name = '';
+
+                //0 = 大吉
+                if(suji == 0) {
+                    omikuji = 'img/daikichi.jpg';
+                    name = '大吉';
+                //1 = 中吉
+                }else if(suji == 1) {
+                    omikuji = 'img/chukichi.jpg';
+                    name = '中吉';
+                //小吉
+                }else if(suji == 2) {
+                    omikuji = 'img/shoukichi.jpg';
+                    name = '小吉';
+                //吉
+                }else if(suji == 3) {
+                    omikuji = 'img/kichi.jpg';
+                    name = '吉';
+                //末吉
+                }else if(suji == 4) {
+                    omikuji = 'img/suekichi.jpg';
+                    name = '末吉';
+                //凶
+                }else if(suji == 5) {
+                    omikuji = 'img/kyou.jpg';
+                    name = '凶';
+                //大凶
+                }else if(suji == 6) {
+                    omikuji = 'img/daikyou.jpg';
+                    name = '大凶';
+                }
+
+                document.getElementById("gazou").setAttribute('src', omikuji);
+                document.getElementById("button").innerHTML = "もう一回ひく";
+
+                //データを取得する
+                getData();
+
+                //データを集計する
+                getTotal();
+
+                //結果をAPI送信する
+                sendResult(name);
+            }
+
+            //SPIで結果を送る
+            function sendResult(name)
+            {
+                $.ajax({
+                    dataType: 'json',
+                    type: 'post',
+                    url: 'add.php',
+                    data: {
+                        "omikuji_name" : name
+                    }
+                })
+                .done(function(data) {
+                    //alert("データを送信しました！")
+                })
+                .fail(function(data){
+                    alert("データ送信がうまくいきませんでした")
+                })
+                .always(function(data) {
+                })
+            }
+
+            //過去履歴のデータを取得
+            function getData()
+            {
+                $.ajax({
+                    dataType: 'json',
+                    type: 'get',
+                    url: 'get.php'
+                })
+                .done(function(data) {
+                    var result = "<table class='table'>";
+                    //データの件数分だけループ
+                    for(var loop = 0; loop < data.length; loop ++)
+                    {
+                        result += "<tr>";
+                        result += "<td>" + data[loop]['name'] + "</td>";
+                        result += "<td>" + data[loop]['created'] + "</td>";
+                        result += "</tr>";
+                    }
+                    result += "</table>";
+                    //document.getElementById("results").innerHTML = result;
+                    $("#results").html(result);
+                })
+                .fail(function(data){
+                    alert("データが取得できません");
+                })
+                .always(function(data){
+                })
+            }
+
+            //集計したデータを取得
+            function getTotal()
+            {
+                $.ajax({
+                    dataType: 'json',
+                    type: 'get',
+                    url: 'get_total.php'
+                })
+                .done(function(data) {
+                    var result = "";
+                    for(var loop = 0; loop < data.length; loop++) {
+                        result += "<div>" + data[loop]["name"] + " "+ data[loop]["total"] + "</div>";
+                    }
+                    $("#total-results").html(result);
+                })
+                .fail(function(data){
+                    alert("集計データが取得できませんでした");
+                })
+                .always(function(data){
+                })
+            }
+
+        </script>
+        <style>
+            #button {
+                background: black;
+                color: white;
+                padding: 15px 60px;
+                font-size: 24px;
+                font-weight: bold;
+            }
+            .table {
+                margin: 0 auto;
+            }
+            .table td {
+                padding: 3px 10px;
+            }
+            .history-title {
+                font-weight: bold; 
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="text-align: center;">
+            <img src="" id="gazou" /><br><br>
+            <button id="button" onClick="random();">おみくじをひく</button>
+            <div>
+                <div style="float: left; text-align: center;">
+                    <p class="history-title">過去履歴</p>
+                    <div id="results"></div>
+                </div>
+                <div style="float: left; text-align: center;">
+                    <p class="history-title">総計</p>
+                    <div id="total-results"></div>
+                </div>
+                <p style="clear: both;"></p>
+        </div>
+    </body>
+</html>
